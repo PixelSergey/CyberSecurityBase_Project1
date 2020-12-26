@@ -31,18 +31,18 @@
             <h2>Add a secret:</h2>
             <form action="/addnote" method="get">
                 <input type="hidden" name="user" value="{{currentuser}}" />
-                <textarea id="note" name="note" type="text" maxlength=200 placeholder="Insert note text here"></textarea><br>
-                <label for="colour">Pick note colour:<label>
+                <textarea id="note" name="note" type="text" maxlength=200 placeholder="Insert secret here"></textarea><br>
+                <label for="colour">Pick a colour:<label>
                 <input id="colour" name="colour" type="color"><br>
-                <input id="submit" type="submit" value="Add my note!"><br>
+                <input id="submit" type="submit" value="Add my secret!"><br>
             </form>
         </div>
 
         <div class="remove box">
             <h2>Remove a secret:</h2>
             <form action="/deletenote" method="get">
-                <textarea id="note" name="note" type="text" maxlength=200 placeholder="Delete all notes whose secret text contains:"></textarea><br>
-                <input id="submit" type="submit" value="Delete the note!"><br>
+                <textarea id="note" name="note" type="text" maxlength=200 placeholder="Delete all secrets whose text contains:"></textarea><br>
+                <input id="submit" type="submit" value="Delete the secrets!"><br>
             </form>
         </div>
         <div class="logout box">
