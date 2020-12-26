@@ -81,6 +81,6 @@ function `django.utils.html.escape(text)`, which will prevent the XSS attack whe
 
 This project was developed by myself, with thanks to:
 
-- Nikolai Tatti, instructor, for clarification and help
+- Nikolaj Tatti, instructor, for clarification and help
 - [@tamithia](https://github.com/tamithia) for adding CSS and graphics to the app
-(authorised by Nikolai Tatti)
+(authorised by Nikolaj Tatti)
