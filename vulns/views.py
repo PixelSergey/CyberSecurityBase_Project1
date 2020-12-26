@@ -8,7 +8,7 @@ from .models import Note
 @login_required
 def index(request):
     notes = Note.objects.filter(owner=request.user)
-    rendernotes = ['<span style="color: {}"><li>{}</li></span>'.format(note.colour, note.text) for note in notes]
+    rendernotes = ['<span><li style="background-color: {}">{}</li></span>'.format(note.colour, note.text) for note in notes]
     return render(request, "index.html", {"notes":rendernotes,"currentuser":request.user})
 
 

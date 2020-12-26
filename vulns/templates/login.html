@@ -1,6 +1,18 @@
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Online Secure Vault</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"> 
+  </head>
+  <body>
+    <div class="login">
+      <h2>Login</h2>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" id="log">Login</button>
+      </form>
+    </div>
+  </body>
+</html>

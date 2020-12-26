@@ -1,51 +1,52 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Totally secure site :)</title>
+        <title>Online Secure Vault</title>
+        <link rel="stylesheet" href="/static/styles.css">
+        <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"> 
     </head>
 
     <body>
-        <h1>Online secret vault</h1>
-        <p>
-            Welcome to the secret vault! Feel free to store your deepest
-            and darkest secrets here.
-        </p>
-        <p>
-            All data will be kept 100% private.
-        </p>
-        <br>
-        <hr>
+        <div class="title box">
+            <h1>Online Secret Vault</h1>
+            <p>
+                Welcome to the secret vault! Feel free to store your deepest
+                and darkest secrets here.
+            </p>
+            <p>
+                All data will be kept 100% private.
+            </p>
+        </div>
+        
+        <div class="secrets box">
+            <h2>Your secrets:</h2>
+            <ul>
+            {% for note in notes %}
+                {{note|safe}}
+            {% endfor %}
+            </ul>
+        </div>
 
-        <h2>Your secrets:</h2>
-        <ul>
-        {% for note in notes %}
-            {{note|safe}}
-        {% endfor %}
-        </ul>
-        <br>
-        <hr>
+        <div class="add box">
+            <h2>Add a secret:</h2>
+            <form action="/addnote" method="get">
+                <input type="hidden" name="user" value="{{currentuser}}" />
+                <textarea id="note" name="note" type="text" maxlength=200 placeholder="Insert note text here"></textarea><br>
+                <label for="colour">Pick note colour:<label>
+                <input id="colour" name="colour" type="color"><br>
+                <input id="submit" type="submit" value="Add my note!"><br>
+            </form>
+        </div>
 
-        <h2>Add a secret:</h2>
-        <form action="/addnote" method="get">
-            <input type="hidden" name="user" value="{{currentuser}}" />
-            <label for="note">Note text:</label><br>
-            <input id="note" name="note" type="text" maxlength=200><br>
-            <label for="colour">And pick a colour:<label><br>
-            <input id="colour" name="colour" type="color"><br>
-            <input type="submit" value="Add my note!"><br>
-        </form>
-        <br>
-        <hr>
-
-        <h2>Remove a secret:</h2>
-        <form action="/deletenote" method="get">
-            <label for="note">Delete all notes whose secret text contains:</label><br>
-            <input id="note" name="note" type="text" maxlength=200><br>
-            <input type="submit" value="Delete the note!"><br>
-        </form>
-        <br>
-        <hr>
-
-        <a href="/logout/"><button type="button">Log out</button></a>
+        <div class="remove box">
+            <h2>Remove a secret:</h2>
+            <form action="/deletenote" method="get">
+                <textarea id="note" name="note" type="text" maxlength=200 placeholder="Delete all notes whose secret text contains:"></textarea><br>
+                <input id="submit" type="submit" value="Delete the note!"><br>
+            </form>
+        </div>
+        <div class="logout box">
+            <a href="/logout/"><button type="button" id="log">Log out</button></a>
+        </div>
     </body>
 </html>
