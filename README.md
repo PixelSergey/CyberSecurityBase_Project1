@@ -20,6 +20,13 @@ This document contains information on the implemented vulnerabilities and how to
 1. Run the `first_setup.sh` or `first_setup.bat` script on Unix and Windows, repsectively
 1. The server should now be started
 1. Access the website by typing `localhost:8000` in your browser
+1. Log in with the default accounts:
+
+   | Username | Password |
+   |:--------:|:--------:|
+   | alice    | redqueen |
+   | bob   | squarepants |
+
 1. After you are done, close the server with CTRL+C in the terminal
 1. If you need to open the server again, simply execute the `run.sh` or `run.bat` script on
 Unix and Windows, repsectively.
@@ -41,7 +48,7 @@ opens up an SQL injection attack. This is because the deletion uses the custom S
 `"SELECT * FROM vulns_note WHERE owner_id = {} AND text LIKE '%{}%'".format(request.user.id, text)`.
 Since the raw text is subsituted into this query, an attacker can terminate it using a `'` and write
 their own query afterwards. For example, submitting `' OR '%'='` into the `Remove a secret` box
-will remove _all_ secrets from _all_ users, which is a huge security oversight.
+will remove _all_ secrets from _all_ users, which would be a huge security oversight in a real application.
 
 Fixing this is easy: Django provides the model system which includes protections against injection
 attacks. It does so by escaping "dangerous" character sequences and including other checks on untrusted
@@ -49,26 +56,62 @@ data. An example of how the system is used can be seen in the `addnote()` functi
 
 ### Flaw 2: Broken Authentication
 
-TBC
+Broken Authentication can happen in a number of ways. Passwords can be sent insecurely, a login system
+can be implemented incorrectly, or there can be a flaw in the session key system.
+
+This project has a flaw in the latter: the session IDs generated are very predictable. They take on
+the form `logincookie-N` where `N` is an integer from 0 upwards. Each new user gets the next integer
+as their login cookie. This can be exploited using a simple session hijacking script, which sequentially
+tests all session IDs and finds one corresponding to the logged in user.
+
+In fact, this issue is only exploitable because the project uses a custom session manager (`securesessions.py`).
+Django provides its own, secure, session manager in the form of the middleware
+`django.contrib.sessions.middleware.SessionMiddleware`. It generates secure, unpredictable session keys, for
+which bruteforcing would take an infeasible amount of time. It is enabled by default. Therefore, if a project
+does not need a custom session manager (and there is generally no reason one would), it should not attempt to
+modify the existing one.
 
 ### Flaw 3: Sensitive Data Exposure
 
-TBC
+Sensitive Data Exposure happens when data a user thinks is secure is stored or transferred in a way that can
+be accessed by attackers. This can happen at rest, where data is not properly encrypted in a database, or in
+transit, where data is sent in plain text or in an insecure manner.
+
+The problem is visible in this project when secrets are added. The sensitive data that the user thinks is
+added securely is actually sent using a GET method to the server. This means that the secret, colour, and
+username are all visible in the URL `/addnote?user=...&note=...&colour=...`. If an attacker sees what URLs their
+victim is accessing, has access to their browser history, or otherwise sees what requests come to the server,
+they can easily figure out what secrets are being stored.
+
+The first thing that must be done to remedy this is to use a POST request for adding secrets. Not only will
+this keep the secrets hidden, it will also prevent users from accidentally re-adding secrets by refreshing the
+page. In addition, it would be smart to encrypt the secrets (and colours) with the user's personal key and stored
+as such in the database so that, even in the case of a data leak, the information would be useless. 
 
 ### Flaw 4: Broken Access Control
 
-TBC
+In a Broken Access Control vulnerability, the things that authenticated or other users can access are not
+properly limited. Attackers can exploit this to access, add, remove, or do other things to unauthorised data.
+
+The issue is again visible in the GET request that is used to add secrets. While the `addnote()` function
+requires authentication to be executed, it does not verify that the _correct_ user is logged in, but rather
+reads the username from the GET parameters. For example, Bob can add a secret to Alice's account by logging in
+and accessing `/addnote?user=alice&note=HACKED&colour=%23ff0000`.
+
+To fix this, we can simply remove the user field from the GET request, and make the `addnote()` function get
+the user object with `request.user`. Similarly to the previous exploit, it would also help to make the request
+go through POST and not GET.
 
 ### Flaw 5: Cross-Site Scripting (XSS)
 
-XSS happens when unfiltered data is used to generate an HTML webpage which can contain JavaScript.
-An XSS attack can be used to execute arbitrary code in a victim's browser.
+XSS happens when unfiltered data is used to generate a webpage. Traditionally, the page contains HTML and
+JavaScript. In an XSS attack, the unsafe data being rendered will execute arbitrary code in a victim's browser.
 
 In this project, XSS can be used when adding a secret. Adding secrets is fine in and of itself; however,
 the secrets are displayed in an insecure way. To get colours to work, the function that generates `index.html`
 uses the line `'<span><li style="background-color: {}">{}</li></span>'.format(note.colour, note.text)`.
 Normally, this generates a tag with a colour and text. However, if the colour or text is controlled by an
-attacker, arbitrary HTML can be generated. For example, adding the secret `<script>alert("hacked")</script>`
+attacker, arbitrary HTML can be generated. For example, adding the secret `<script>alert("HACKED")</script>`
 using the `Add a secret` box will run the JavaScript code when the secret is displayed. In conjunction with
 Broken Access Control, XSS can be used to steal cookies and sensitive data from a user.
 
@@ -81,6 +124,6 @@ function `django.utils.html.escape(text)`, which will prevent the XSS attack whe
 
 This project was developed by myself, with thanks to:
 
-- Nikolaj Tatti, instructor, for clarification and help
+- Nikolaj Tatti, teacher, for clarification and help
 - [@tamithia](https://github.com/tamithia) for adding CSS and graphics to the app
 (authorised by Nikolaj Tatti)
