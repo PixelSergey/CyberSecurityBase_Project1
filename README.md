@@ -6,6 +6,8 @@ The project features a basic "vault" app, where users can log in and store their
 Users can also delete all secrets containing a certain substring.
 The app is designed to simulate a broken web application with the secrets being sensitive data.
 
+![demo screenshot](screenshot.png)
+
 As outlined in the [course page](https://cybersecuritybase.mooc.fi/module-3.1), this project contains
 a number of cybersecurity vulnerabilities from the [OWASP Top 10 list](https://owasp.org/www-project-top-ten/).
 This document contains information on the implemented vulnerabilities and how to fix them.
